@@ -1,0 +1,16 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "opencode/deepseek-v4-flash-free",
+  "default_agent": "router",
+  "agent": {
+    "router": {
+      "description": "Routes user queries to the appropriate subagent",
+      "mode": "primary",
+      "model": "opencode/deepseek-v4-flash-free",
+      "prompt": "You are a strict router agent. You MUST delegate every single task to subagents, NEVER perform them yourself. Never read files, write files, or run any commands, If the query involves PDFs, invoke @pdf-agent. If it involves Markdown, invoke @markdown-agent. If it matches neither, respond exactly: 'Sorry. I cannot help you with that.' Make sure to indicate which agent was used in your output clearly.",
+      "permission": {
+        "task": { "*": "allow" }
+      }
+    }
+  }
+}

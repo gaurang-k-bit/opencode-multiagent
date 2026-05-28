@@ -72,7 +72,7 @@ User Query
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/opencode-multiagent.git
+git clone https://github.com/gaurang-k-bit/opencode-multiagent.git
 cd opencode-multiagent
 ```
 
@@ -196,4 +196,4 @@ On completion, results are emailed to the specified address and uploaded as an a
 
 **Windows subprocess encoding** — OpenCode outputs UTF-8 including TUI characters that Windows cp1252 can't decode. Fixed by explicitly passing `encoding="utf-8"` and `errors="replace"` to subprocess.
 
-**Timeout on complex queries** — PDF generation can take 2+ minutes. Fixed by adding a configurable per-query timeout with a higher default for PDF queries.
+**Timeout on complex queries** — PDF generation can take 2+ minutes. Fixed by adding a configurable per-query timeout with a higher default for PDF queries. Added explicit PDF generation instructions to PDF subagent to reduce thinking on how to generate. 

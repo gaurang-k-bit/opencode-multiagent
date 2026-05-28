@@ -74,6 +74,8 @@ jobs:
           body: |
             Multi-Agent Evaluation Complete
 
+            Sent to: ${{ github.event.inputs.recipient_email || secrets.EMAIL_TO }}
+
             Run at:  ${{ github.run_id }}
             Commit:  ${{ github.sha }}
             Branch:  ${{ github.ref_name }}

@@ -1,0 +1,89 @@
+name: Multi-Agent Evaluation
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      recipient_email:
+        description: "Email address to send results to"
+        required: true
+        default: "gskakodkar07@gmail.com"
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies
+        run: pip install reportlab fpdf2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install OpenCode
+        run: npm install -g opencode-ai
+
+      - name: Authenticate OpenCode
+        run: echo "OPENCODE_ZEN_API_KEY=${{ secrets.OPENCODE_ZEN_API_KEY }}" >> $GITHUB_ENV
+
+      - name: Run evaluation
+        run: python evaluate.py
+
+      - name: Upload results as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: results
+          path: results.json
+
+      - name: Read results for email
+        id: results
+        run: |
+          RESULTS=$(cat results.json)
+          ACCURACY=$(echo $RESULTS | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['accuracy'])")
+          TOTAL=$(echo $RESULTS | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['total'])")
+          PASSED=$(echo $RESULTS | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['passed'])")
+          FAILED=$(echo $RESULTS | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['failed'])")
+          echo "accuracy=$ACCURACY" >> $GITHUB_OUTPUT
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          echo "failed=$FAILED" >> $GITHUB_OUTPUT
+
+      - name: Send results email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_APP_PASSWORD }}
+          to: ${{ github.event.inputs.recipient_email || secrets.EMAIL_TO }}
+          from: OpenCode Evaluator <${{ secrets.EMAIL_USERNAME }}>
+          subject: "Evaluation Results — ${{ steps.results.outputs.accuracy }}% accuracy (${{ steps.results.outputs.passed }}/${{ steps.results.outputs.total }} passed)"
+          body: |
+            Multi-Agent Evaluation Complete
+
+            Run at:  ${{ github.run_id }}
+            Commit:  ${{ github.sha }}
+            Branch:  ${{ github.ref_name }}
+
+            Results:
+              Total:    ${{ steps.results.outputs.total }}
+              Passed:   ${{ steps.results.outputs.passed }}
+              Failed:   ${{ steps.results.outputs.failed }}
+              Accuracy: ${{ steps.results.outputs.accuracy }}%
+
+            Full results attached as results.json artifact.
+            View run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          attachments: results.json

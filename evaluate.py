@@ -13,6 +13,28 @@ OPENCODE_CMD = "opencode.cmd" if platform.system() == "Windows" else "opencode"
 TESTS_FILE = "tests.csv"
 RESULTS_FILE = "results.json"
 
+def detect_agent(output: str) -> str:
+    lower = output.lower()
+
+    # Check if a subagent was explicitly invoked by name
+    if "@pdf-agent" in lower or "→ pdf-agent" in lower or "pdf-agent" in lower:
+        return "pdf-agent"
+    if "@markdown-agent" in lower or "→ markdown-agent" in lower or "markdown-agent" in lower:
+        return "markdown-agent"
+
+    # Check what file types were actually created/written
+    if any(x in lower for x in ["wrote", "write", "created", "generating"]):
+        if any(x in lower for x in [".pdf", "pdf report", "pdf file"]):
+            return "pdf-agent"
+        if any(x in lower for x in [".md", "readme", "markdown"]):
+            return "markdown-agent"
+
+    # Fallback message
+    if "sorry. i cannot help you with that" in lower:
+        return "none"
+
+    return "none"
+
 
 def run_query(query: str) -> tuple[str, str, float]:
     """
@@ -32,19 +54,7 @@ def run_query(query: str) -> tuple[str, str, float]:
 
     output = ((result.stdout or "") + (result.stderr or "")).lower()
 
-    print("--- RAW OUTPUT ---")
-    print(output)
-    print("--- END RAW OUTPUT ---")
-
-    if "pdf-agent" in output:
-        agent = "pdf-agent"
-    elif "markdown-agent" in output:
-        agent = "markdown-agent"
-    else:
-        if "sorry. i cannot help you with that" in output:
-            agent = "none"
-        else:
-            agent = "none"
+    agent = detect_agent(output)
 
     return agent, result.stdout.strip(), duration
 

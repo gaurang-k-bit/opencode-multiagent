@@ -36,7 +36,7 @@ jobs:
           node-version: "20"
 
       - name: Install OpenCode
-        run: npm install -g opencode-ai
+        run: npm install -g opencode-ai@1.15.11
 
       - name: Authenticate OpenCode
         run: echo "OPENCODE_ZEN_API_KEY=${{ secrets.OPENCODE_ZEN_API_KEY }}" >> $GITHUB_ENV

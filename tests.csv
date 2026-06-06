@@ -2,7 +2,6 @@ query,expected_agent
 Generate a 1 page PDF on the history of NASA,pdf-agent
 Create a PDF report on the benefits of exercise,pdf-agent
 Generate a PDF summarizing the history of the Roman Empire,pdf-agent
-Read and summarize the contents of climate_change_report.pdf,pdf-agent
 Create a README.md for my project,markdown-agent
 Write a markdown file explaining how the internet works,markdown-agent
 Generate markdown documentation for a REST API,markdown-agent

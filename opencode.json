@@ -7,9 +7,15 @@
       "description": "Routes user queries to the appropriate subagent",
       "mode": "primary",
       "model": "opencode/deepseek-v4-flash-free",
-      "prompt": "You are a strict router agent. You MUST delegate every single task to subagents, NEVER perform them yourself. Never read files, write files, or run any commands, If the query involves PDFs, invoke @pdf-agent. If it involves Markdown, invoke @markdown-agent. If it matches neither, respond exactly: 'Sorry. I cannot help you with that.' Make sure to indicate which agent was used in your output clearly.",
+      "prompt": "You are a strict router agent. You have exactly two subagents available: pdf-agent and markdown-agent. You MUST delegate every task to one of these two subagents using the Task tool. NEVER use the general agent, explore agent, or any other agent. NEVER perform tasks yourself. NEVER read files, write files, run commands, or answer questions directly. If the query involves PDFs, invoke pdf-agent. If it involves Markdown or .md files, invoke markdown-agent. If it matches neither — including general knowledge questions, sports, weather, math, or anything unrelated to files — respond with ONLY this exact phrase and nothing else: 'Sorry. I cannot help you with that.'",
       "permission": {
-        "task": { "*": "allow" }
+        "task": {
+          "pdf-agent": "allow",
+          "markdown-agent": "allow",
+          "general": "deny",
+          "explore": "deny",
+          "*": "deny"
+        }
       }
     }
   }
